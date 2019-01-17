@@ -1,0 +1,24 @@
+#!/bin/bash
+
+{{- if eq .chezmoi.os "linux" }}
+    {{- if eq .chezmoi.osRelease.idLike "debian" }}
+{{ .use_sudo }}apt update
+{{ .use_sudo }}apt install -y golang zsh fzy fzf
+
+# For pyenv
+{{ .use_sudo }}apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev
+    {{- end }}
+{{- else if eq .chezmoi.os "darwin" }}
+brew install golang zsh fzy fzf
+
+# For pyenv
+brew install openssl readline sqlite3 xz zlib
+{{- end }}
+
+# Standard tools
+curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+go get -u -v github.com/twpayne/chezmoi
+curl -s https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy | {{ .use_sudo }}tee {{ .primary_path }}/diff-so-fancy > /dev/null
+{{ .use_sudo }}chmod a+x {{ .primary_path }}/diff-so-fancy
+{{ .use_sudo }}chsh -s `which zsh` {{ .chezmoi.username }}
+curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | zsh
